@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkSwift | Acortador de URLs Inteligente</title>
+    <!-- Tailwind CSS CDN para diseño moderno y estilizado -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
+
+    <!-- Navbar -->
+    <header class="border-b border-slate-200 bg-white/90 sticky top-0 z-40 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">LinkSwift</span>
+                    <span class="ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-100">Java 21 & Spring Boot 4</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4 text-sm font-medium text-slate-600">
+                <a href="/h2-console" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 transition text-xs font-semibold text-slate-700">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
+                        <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
+                        <path d="M17 4c0 1.657-3.134 3-7 3S3 5.657 3 4s3.134-3 7-3 7 1.343 7 3z" />
+                    </svg>
+                    Consola H2 DB
+                </a>
+                <a href="/api/v1/urls" target="_blank" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition text-xs font-semibold">
+                    API REST
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+
+        <!-- Hero & Shorten Form Section -->
+        <section class="text-center max-w-3xl mx-auto space-y-4 pt-4">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                Acorta enlaces largos con <span class="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent">velocidad y analíticas</span>
+            </h1>
+            <p class="text-slate-600 text-base sm:text-lg">
+                Genera códigos de 6 caracteres con algoritmo de resolución de colisiones y redirección HTTP 302 en tiempo real.
+            </p>
+
+            <!-- Alertas / Notificaciones -->
+            <div th:if="${errorMessage}" class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-3 text-left">
+                <svg class="w-5 h-5 flex-shrink-0 text-rose-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span th:text="${errorMessage}">Mensaje de error</span>
+            </div>
+
+            <!-- Formulario Principal -->
+            <form th:action="@{/shorten}" method="post" class="mt-8 glassmorphism p-3 sm:p-4 rounded-2xl shadow-xl shadow-indigo-100/50 flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                        </svg>
+                    </div>
+                    <input type="url" name="originalUrl" required placeholder="Pega tu enlace largo aquí (ej: https://github.com/usuario/proyecto)..."
+                           class="w-full pl-11 pr-4 py-3.5 bg-slate-50/80 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white text-slate-900 transition text-sm sm:text-base">
+                </div>
+                <button type="submit"
+                        class="px-7 py-3.5 bg-indigo-600 hover:bg-indigo-700 active:scale-[0.98] transition font-bold text-white rounded-xl shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 text-sm sm:text-base flex-shrink-0">
+                    <span>Acortar URL</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Card de Éxito con URL Generada -->
+            <div th:if="${generatedShortUrl}" class="mt-6 p-6 bg-gradient-to-br from-indigo-500/10 via-violet-500/10 to-transparent border border-indigo-200 rounded-2xl text-left space-y-4 animate-fade-in shadow-md">
+                <div class="flex items-center justify-between">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700 bg-indigo-100 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        ¡Tu enlace corto está listo!
+                    </span>
+                    <span class="text-xs text-slate-500 font-mono">Código: <b th:text="${shortCode}">ABC123</b></span>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs text-slate-400 font-medium mb-1">URL Redirigida (302):</p>
+                        <a th:href="${generatedShortUrl}" target="_blank" class="text-lg font-bold text-indigo-600 hover:underline break-all" id="generatedShortUrlLink" th:text="${generatedShortUrl}">
+                            http://localhost:8080/s/xyz123
+                        </a>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
+                        <button onclick="copyGeneratedUrl()" id="copyBtn" class="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span id="copyBtnText">Copiar</span>
+                        </button>
+                        <a th:href="${generatedShortUrl}" target="_blank" class="px-4 py-2 border border-slate-200 hover:bg-slate-50 rounded-lg text-sm font-semibold text-slate-700 transition flex items-center justify-center gap-1">
+                            Probar ↗
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI / Estadísticas Rápidas -->
+        <section class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Enlaces Creados</p>
+                    <p class="text-2xl font-extrabold text-slate-900" th:text="${totalUrls}">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Total Clics Auditados</p>
+                    <p class="text-2xl font-extrabold text-slate-900" th:text="${totalClicks}">0</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 uppercase tracking-wider">Espacio Combinatorio</p>
+                    <p class="text-2xl font-extrabold text-slate-900">56.8 Mil Millones</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tabla de Enlaces y Estadísticas -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900">Historial de URLs y Métricas de Clics</h2>
+                    <p class="text-xs text-slate-500">Cada redirección actualiza de forma atómica el contador con HTTP 302.</p>
+                </div>
+                <div class="text-xs text-slate-500 font-mono">
+                    Persistencia: <span class="font-semibold text-emerald-600">H2 Database (file)</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-slate-600">
+                    <thead class="bg-slate-50/80 text-xs uppercase font-bold text-slate-500 border-b border-slate-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-4">Código</th>
+                            <th scope="col" class="px-6 py-4">Enlace Corto (Redirección)</th>
+                            <th scope="col" class="px-6 py-4">URL Original de Destino</th>
+                            <th scope="col" class="px-6 py-4 text-center">Clics</th>
+                            <th scope="col" class="px-6 py-4">Fecha Creación</th>
+                            <th scope="col" class="px-6 py-4 text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 font-normal">
+                        <tr th:if="${#lists.isEmpty(urls)}" class="hover:bg-slate-50/50">
+                            <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                                <div class="max-w-xs mx-auto space-y-2">
+                                    <svg class="w-10 h-10 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                    </svg>
+                                    <p class="font-medium text-slate-600">Aún no has generado URLs cortas</p>
+                                    <p class="text-xs text-slate-400">Ingresa un enlace en el formulario superior para comenzar.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:each="item : ${urls}" class="hover:bg-slate-50/80 transition group">
+                            <td class="px-6 py-4 font-mono font-bold text-indigo-600">
+                                <span class="bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded text-xs" th:text="${item.shortCode}">ABC123</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <a th:href="@{'/s/' + ${item.shortCode}}" target="_blank"
+                                   class="font-semibold text-slate-900 hover:text-indigo-600 hover:underline flex items-center gap-1">
+                                    <span th:text="${baseUrl + item.shortCode}">http://localhost:8080/s/ABC123</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 max-w-xs">
+                                <a th:href="${item.originalUrl}" target="_blank" th:title="${item.originalUrl}"
+                                   class="text-slate-500 hover:text-slate-700 truncate block text-xs" th:text="${item.originalUrl}">
+                                    https://www.google.com/search?q=very-long-url
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold"
+                                      th:classappend="${item.clickCount > 0} ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'">
+                                    <span class="w-1.5 h-1.5 rounded-full" th:classappend="${item.clickCount > 0} ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                                    <span th:text="${item.clickCount}">0</span> clics
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-xs text-slate-500" th:text="${#temporals.format(item.createdAt, 'dd/MM/yyyy HH:mm')}">
+                                25/10/2026 15:30
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <form th:action="@{'/delete/' + ${item.id}}" method="post" onsubmit="return confirm('¿Deseas eliminar este enlace corto?');" class="inline">
+                                    <button type="submit" class="text-xs font-medium text-rose-600 hover:text-rose-800 hover:underline">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Panel de Arquitectura y Puntos Clave para la Entrevista -->
+        <section class="bg-gradient-to-br from-slate-900 to-indigo-950 text-white p-6 sm:p-8 rounded-2xl shadow-xl space-y-4">
+            <div class="flex items-center gap-3">
+                <span class="px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+                    Para la Entrevista Técnica
+                </span>
+                <span class="text-xs text-slate-400 font-mono">System Design & Algoritmos</span>
+            </div>
+            <h3 class="text-xl font-bold">Puntos clave que este proyecto demuestra ante los reclutadores:</h3>
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-slate-300 pt-2">
+                <li class="flex items-start gap-2.5">
+                    <span class="text-emerald-400 font-bold">✓</span>
+                    <span><b>Mapeo de Rutas y Redirección 302:</b> Se utiliza el código HTTP 302 (Found) en lugar de 301 (Permanent) para evitar que los navegadores guarden el destino en caché y garantizar la auditoría de cada clic en tiempo real.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="text-emerald-400 font-bold">✓</span>
+                    <span><b>Algoritmo de 6 Caracteres Base62:</b> Con un alfabeto alfanumérico [0-9a-zA-Z] y longitud 6, el espacio disponible es de 62⁶ (~56.8 mil millones) de combinaciones únicas.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="text-emerald-400 font-bold">✓</span>
+                    <span><b>Manejo Eficiente de Colisiones:</b> Bucle de reintentos con SecureRandom y restricción única indexada en base de datos para garantizar consistencia y rendimiento O(1) en consultas.</span>
+                </li>
+                <li class="flex items-start gap-2.5">
+                    <span class="text-emerald-400 font-bold">✓</span>
+                    <span><b>Arquitectura Limpia en Capas:</b> Separación estricta entre Entidad, Repositorio (JPA), Capa de Servicio (Transaccional) y Controladores duales (Web MVC + REST API).</span>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-200 bg-white py-6 mt-12 text-center text-xs text-slate-500">
+        <p>Proyecto para Portafolio de Software Backend & Fullstack | Spring Boot 4 + Java 21 + Thymeleaf + H2 Database</p>
+    </footer>
+
+    <!-- Script para copiar al portapapeles -->
+    <script>
+        function copyGeneratedUrl() {
+            const linkText = document.getElementById('generatedShortUrlLink').innerText;
+            navigator.clipboard.writeText(linkText).then(() => {
+                const btnText = document.getElementById('copyBtnText');
+                const originalText = btnText.innerText;
+                btnText.innerText = "¡Copiado!";
+                document.getElementById('copyBtn').classList.add('bg-emerald-600');
+                setTimeout(() => {
+                    btnText.innerText = originalText;
+                    document.getElementById('copyBtn').classList.remove('bg-emerald-600');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
