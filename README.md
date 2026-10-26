@@ -1,3 +1,46 @@
+# LinkSwift - URL Shortener with Redirection and Analytics
+
+A fully-featured URL shortening service developed with **Java 21** and **Spring Boot**, designed with a clean layered architecture, relational data persistence, and a modern, responsive web interface.
+
+---
+
+## 🚀 Main Features
+
+1. **6-Character Code Generation**:
+   - Base62 alphanumeric alphabet (`[0-9a-zA-Z]`).
+   - Combinatorial space of $62^6 \approx 56.8$ billion unique combinations.
+   - High-entropy cryptographic generator (`SecureRandom`) with collision resolution algorithm.
+2. **Efficient Redirection (HTTP 302 Found)**:
+   - Redirection at `/s/{code}` pointing to the original target URL.
+   - **HTTP 302** (temporary redirect) is used to prevent browsers from caching the destination, ensuring **every click is tracked and audited in real time**.
+3. **Live Metrics and Statistics**:
+   - Atomic visit counter per link.
+   - History of shortened URLs with creation date and last access timestamp.
+   - Global summary of total URLs and total clicks.
+4. **Data Persistence**:
+   - Relational **H2** database in file mode (`./data/urldb`), keeping data intact between server reboots.
+   - Integrated H2 web console available at `/h2-console`.
+5. **Dual Controller Layer**:
+   - **Web Controller (Thymeleaf + Tailwind CSS)**: Modern graphical interface featuring a quick clipboard copy button and reactive alerts.
+   - **REST API Controller**: JSON endpoints for external integration at `/api/v1/urls` and `/api/v1/shorten`.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Language**: Java 21 (LTS)
+- **Framework**: Spring Boot (Spring Web MVC, Spring Data JPA, Validation)
+- **Templates**: Thymeleaf
+- **Database**: H2 Database (persistent embedded SQL engine)
+- **Frontend**: HTML5, Tailwind CSS (CDN), Plus Jakarta Sans Typography
+- **Build Tool**: Apache Maven Wrapper (`mvnw`)
+- **Testing**: JUnit 5, Spring Boot Starter Test
+
+---
+
+## 📂 Project Structure
+
+
 # LinkSwift - Acortador de URLs con Redirección y Analíticas
 
 Un servicio completo de acortamiento de URLs desarrollado con **Java 21** y **Spring Boot**, diseñado con una arquitectura limpia en capas, persistencia de datos relacional y una interfaz web moderna y responsiva.
