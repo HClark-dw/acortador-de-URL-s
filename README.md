@@ -41,6 +41,11 @@ A fully-featured URL shortening service developed with **Java 21** and **Spring 
 ## 📂 Project Structure
 
 
+
+
+
+
+
 # LinkSwift - Acortador de URLs con Redirección y Analíticas
 
 Un servicio completo de acortamiento de URLs desarrollado con **Java 21** y **Spring Boot**, diseñado con una arquitectura limpia en capas, persistencia de datos relacional y una interfaz web moderna y responsiva.
